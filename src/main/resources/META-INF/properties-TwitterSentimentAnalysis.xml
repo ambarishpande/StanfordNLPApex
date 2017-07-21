@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<configuration>
+  <!-- 
+  <property>
+    <name>apex.application.{appName}.operator.{opName}.prop.{propName}</name>
+    <value>some-default-value (if value is not specified, it is required from the user or custom config when launching)</value>
+  </property>
+  -->
+  <!-- memory assigned to app master
+  <property>
+    <name>apex.attr.MASTER_MEMORY_MB</name>
+    <value>1024</value>
+  </property>
+  -->
+
+  <!-- Specify Your Twitter Api Credentials -->
+  <property>
+    <name>apex.application.TwitterSentimentAnalysis.operator.Twitter.prop.consumerKey</name>
+    <value></value>
+  </property>
+
+  <property>
+    <name>apex.application.TwitterSentimentAnalysis.operator.Twitter.prop.consumerSecret</name>
+    <value></value>
+  </property>
+
+  <property>
+    <name>apex.application.TwitterSentimentAnalysis.operator.Twitter.prop.accessToken</name>
+    <value></value>
+  </property>
+
+  <property>
+    <name>apex.application.TwitterSentimentAnalysis.operator.Twitter.prop.accessTokenSecret</name>
+    <value></value>
+  </property>
+
+  <property>
+    <name>apex.application.TwitterSentimentAnalysis.operator.Twitter.prop.debug</name>
+    <value>false</value>
+  </property>
+
+  <property>
+    <name>apex.application.TwitterSentimentAnalysis.operator.Annotator.prop.annotator</name>
+    <value>sentiment</value>
+  </property>
+
+  <property>
+    <name>apex.application.TwitterSentimentAnalysis.operator.Twitter.prop.tuplesPerWindow</name>
+    <value>10</value>
+  </property>
+
+  <property>
+    <name>apex.application.TwitterSentimentAnalysis.operator.Tweet-Cleaner.attr.PARTITIONER</name>
+    <value>com.datatorrent.common.partitioner.StatelessPartitioner:4</value>
+  </property>
+  <property>
+    <name>apex.application.TwitterSentimentAnalysis.operator.Twitter.attr.MEMORY_MB</name>
+    <value>512</value>
+  </property>
+
+  <property>
+    <name>apex.application.TwitterSentimentAnalysis.operator.Tweet-Cleaner.attr.MEMORY_MB</name>
+    <value>1024</value>
+  </property>
+  <property>
+    <name>apex.application.TwitterSentimentAnalysis.operator.Annotator.attr.MEMORY_MB</name>
+    <value>1024</value>
+  </property>
+  <property>
+    <name>apex.application.TwitterSentimentAnalysis.operator.Analyser.attr.MEMORY_MB</name>
+    <value>256</value>
+  </property>
+
+  <property>
+    <name>apex.application.TwitterSentimentAnalysis.operator.*.port.*.attr.BUFFER_MEMORY_MB</name>
+    <value>256</value>
+  </property>
+
+  <property>
+    <name>apex.application.TwitterSentimentAnalysis.operator.Annotator.port.input.attr.PARTITION_PARALLEL</name>
+    <value>true</value>
+  </property>
+
+  <property>
+    <name>apex.application.TwitterSentimentAnalysis.operator.Annotator.prop.pipelineProperties</name>
+    <value>{"pos.model" : "gate-EN-twitter.model"}</value>
+  </property>
+  
+</configuration>
+

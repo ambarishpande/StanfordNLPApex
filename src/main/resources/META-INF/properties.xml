@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<configuration>
+  <!-- 
+  <property>
+    <name>apex.application.{appName}.operator.{opName}.prop.{propName}</name>
+    <value>some-default-value (if value is not specified, it is required from the user or custom config when launching)</value>
+  </property>
+  -->
+  <!-- memory assigned to app master
+  <property>
+    <name>apex.attr.MASTER_MEMORY_MB</name>
+    <value>1024</value>
+  </property>
+  -->
+
+  <property>
+    <name>apex.application.StanfordNLPApex.operator.FileInputOp.prop.directory</name>
+    <value>/home/ambarish/inputdata/</value>
+  </property>
+
+  <property>
+    <name>apex.application.StanfordNLPApex.operator.Annotator.prop.annotator</name>
+    <value>pos,parse</value>
+  </property>
+ <!--
+  Specify Pipeline properties in the form of json.
+  <property>-->
+    <!--<name>apex.application.StanfordNLPApex.operator.Annotator.prop.pipelineProperties</name>-->
+    <!--<value>{"ner.model" : "src/main/resources/models/english.muc.7class.nodistsim.crf.ser.gz"}</value>-->
+  <!--</property>-->
+
+
+</configuration>
+
