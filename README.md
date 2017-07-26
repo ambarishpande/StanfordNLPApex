@@ -68,5 +68,64 @@ An Apex application to perform sentiment analysis of tweets.
 ```
 apex> launch StanfordNLPApex-1.0-SNAPSHOT.apa --libjars ~/Downloads/gate-EN-twitter.model TwitterSentimentAnalysis
 ```
+## ApexNLPClassifier Operator
 
+A Stanford NLP classifier operator to classify text documents based on the provided pre trained model.
 
+### Dependencies
+Apart from dependencies of Annotator Operator.
+1) Stanford Classifier
+
+### Usage
+1) Upload pretrained Stanford NLP model on hdfs.
+2) Set modelFilePath in properties.xml to the path where the model is saved on HDFS.
+```
+<property>
+    <name>apex.application.EmailSpam.operator.Classifier.prop.modelFilePath</name>
+    <value>/path/to/email.model</value>
+  </property>
+
+```
+3) Set classifierProperties in properties.xml to properties of classifier. Each property seperated by new line.
+e.g.
+```
+   <property>
+    <name>apex.application.EmailSpam.operator.Classifier.prop.classifierProperties</name>
+    <value>
+      useClassFeature = true
+      1.splitWordsRegexp = \\s
+      1.useSplitWords = true
+      useNB = true
+      goldAnswerColumn = 0
+    </value>
+  </property>
+```
+
+#### For Testing Accuracy of Trained model.
+ Connect the test data input to testInput port of ApexNLPClassifier to test the accuracy of the trained model.
+#### For new data scoring.
+  Connect the data input tp input port of ApexNLPClassifier to score real time new inputl.
+  
+##  Twitter Spam Example
+
+An Apex application to demo the usage of ApexNLPClassifier Operator.
+
+### Steps to Run the Application
+
+1) Set the Emails.prop.directory property to the location of the test data.
+```
+<property>
+    <name>apex.application.EmailSpam.operator.Emails.prop.directory</name>
+    <value>path/to/data/</value>
+</property>
+ ```
+2) Set ApexNLP operator properies as mentioned above.
+2) Build application package using 
+  ```
+  mvn clean package -DskipTests
+  ```
+4) launch the application via Apex CLI
+
+```
+apex> launch StanfordNLPApex-1.0-SNAPSHOT.apa EmailSpam
+```
