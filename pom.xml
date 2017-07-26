@@ -18,6 +18,7 @@
     <apex.apppackage.classpath>lib/*.jar</apex.apppackage.classpath>
   </properties>
 
+
   <build>
     <plugins>
        <plugin>
@@ -288,12 +289,13 @@
       <version>3.4.1</version>
       <classifier>models</classifier>
     </dependency>
-    <!--<dependency>-->
-      <!--<groupId>edu.stanford.nlp</groupId>-->
-      <!--<artifactId>stanford-corenlp</artifactId>-->
-      <!--<version>3.8.0</version>-->
-      <!--<classifier>models-english</classifier>-->
-    <!--</dependency>-->
+
+    <!--Required for EmailSpam-->
+    <dependency>
+      <groupId>edu.stanford</groupId>
+      <artifactId>stanford-classifier</artifactId>
+      <version>3.4.1</version>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.apex</groupId>
@@ -336,16 +338,6 @@
       <version>${apex.malhar.version}</version>
     </dependency>
 
-    <!--<dependency>-->
-      <!--<groupId>de.javakaffee</groupId>-->
-      <!--<artifactId>kryo-serializers</artifactId>-->
-      <!--<version>0.41</version>-->
-    <!--</dependency>-->
-    <!--<dependency>-->
-      <!--<groupId>com.google.protobuf</groupId>-->
-      <!--<artifactId>protobuf-java</artifactId>-->
-      <!--<version>3.3.1</version>-->
-    <!--</dependency>-->
   </dependencies>
 
 </project>

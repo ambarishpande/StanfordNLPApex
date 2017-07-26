@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<configuration>
+  <!--
+  <property>
+    <name>apex.application.{appName}.operator.{opName}.prop.{propName}</name>
+    <value>some-default-value (if value is not specified, it is required from the user or custom config when launching)</value>
+  </property>
+  -->
+  <!-- memory assigned to app master
+  <property>
+    <name>apex.attr.MASTER_MEMORY_MB</name>
+    <value>1024</value>
+  </property>
+  -->
+  <property>
+    <name>apex.application.EmailSpam.operator.Emails.prop.directory</name>
+    <value>/code/Development/StanfordNLPApex/src/main/resources/data/</value>
+  </property>
+
+  <property>
+    <name>apex.application.EmailSpam.operator.Classifier.prop.modelFilePath</name>
+    <value>/home/ambarish/models/email/spam/email.model</value>
+  </property>
+
+  <property>
+    <name>apex.application.EmailSpam.operator.Classifier.prop.classifierProperties</name>
+    <value>
+      useClassFeature = true
+      1.splitWordsRegexp = \\s
+      1.useSplitWords = true
+      useNB = true
+      goldAnswerColumn = 0
+    </value>
+  </property>
+
+
+</configuration>
+
