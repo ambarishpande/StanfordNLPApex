@@ -4,6 +4,7 @@ import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.ambarish.StanfordNLPApex.ApexNLPClassifier;
 import com.datatorrent.ambarish.StanfordNLPApex.FileInputOp;
+import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
@@ -22,8 +23,11 @@ public class Application implements StreamingApplication
     ApexNLPClassifier classifier = dag.addOperator("Classifier",ApexNLPClassifier.class);
     ConsoleOutputOperator console = dag.addOperator("Console",new ConsoleOutputOperator());
 
-    dag.addStream("emails",fileInputOp.output,classifier.testInput);
+//    dag.addStream("emails",fileInputOp.output,classifier.input);
+    dag.addStream("emailsTest",fileInputOp.output,classifier.testInput);
     dag.addStream("class",classifier.output,console.input);
+    dag.setAttribute(Context.DAGContext.METRICS_TRANSPORT, null);
+    dag.setAttribute(classifier, Context.OperatorContext.METRICS_AGGREGATOR, new ClassifierMetricsAggregator());
 
   }
 }

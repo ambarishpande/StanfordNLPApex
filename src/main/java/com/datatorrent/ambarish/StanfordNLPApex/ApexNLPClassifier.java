@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -14,16 +16,21 @@ import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
+import com.esotericsoftware.kryo.serializers.FieldSerializer;
+import com.esotericsoftware.kryo.serializers.JavaSerializer;
+
 import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.util.BaseOperator;
+import com.datatorrent.common.util.Pair;
 
 import edu.stanford.nlp.classify.Classifier;
 import edu.stanford.nlp.classify.ColumnDataClassifier;
 import edu.stanford.nlp.ling.Datum;
 import edu.stanford.nlp.util.ErasureUtils;
+import edu.stanford.nlp.util.MutableDouble;
 import edu.stanford.nlp.util.PropertiesUtils;
 
 /**
@@ -32,8 +39,8 @@ import edu.stanford.nlp.util.PropertiesUtils;
  * 
  * USAGE:
  * 1) Upload pretrained model on hdfs.
- * 1) Set modelFilePath in properties.xml to the path where the model is saved on HDFS.
- * 2) Set classifierProperties in properties.xml to properties of classifier. Each property seperated by new line.
+ * 2) Set modelFilePath in properties.xml to the path where the model is saved on HDFS.
+ * 3) Set classifierProperties in properties.xml to properties of classifier. Each property seperated by new line.
  * e.g.
  * <value>
  * useClassFeature = true
@@ -53,25 +60,29 @@ public class ApexNLPClassifier extends BaseOperator
   private String classifierProperties;
   @AutoMetric
   private double accuracy;
-  @AutoMetric
-  private int correct;
-  @AutoMetric
-  private int incorrect;
-  public transient DefaultOutputPort<String> output = new DefaultOutputPort<>();
 
+  @FieldSerializer.Bind(JavaSerializer.class)
+  @AutoMetric
+  private Collection<Collection<Pair<String, Object>>> precisions = new ArrayList<>();
+
+  private int [][] confusionMatrix;
+  private ArrayList<String> labels;
+  public transient DefaultOutputPort<String> output = new DefaultOutputPort<>();
+  private double[] precision;
+  private double[] recall;
   /**
    * Used for classifying unlabelled documents.
    */
-  public transient DefaultInputPort<String> input = new DefaultInputPort<String>()
-  {
-    @Override
-    public void process(String s)
-    {
-      String s1 = " \t"+s;
-      Datum<String, String> d = cdc.makeDatumFromLine(s1);
-      output.emit(s + " : " + cl.classOf(d));
-    }
-  };
+//  public transient DefaultInputPort<String> input = new DefaultInputPort<String>()
+//  {
+//    @Override
+//    public void process(String s)
+//    {
+//      String s1 = " \t"+s;
+//      Datum<String, String> d = cdc.makeDatumFromLine(s1);
+//      output.emit(s + " : " + cl.classOf(d));
+//    }
+//  };
 
   /**
    * Used to test model accuracy. Provide data in 'label <tab> data' format.
@@ -84,12 +95,12 @@ public class ApexNLPClassifier extends BaseOperator
       Datum<String, String> d = cdc.makeDatumFromLine(s);
       output.emit(s + " : " + cl.classOf(d));
       String expectedLabel = s.split("\t")[0];
-      if (expectedLabel.equals(cl.classOf(d))) {
-        correct++;
-      } else {
-        incorrect++;
-      }
-      accuracy = ((double)correct / (correct + incorrect)) * 100;
+      String predictedLabel = cl.classOf(d);
+      confusionMatrix[labels.indexOf(expectedLabel)][labels.indexOf(predictedLabel)]++;
+      printConfusionMatrix();
+      calculateAccuracy();
+      calculatePrecision();
+      calculateRecall();
     }
   };
 
@@ -97,14 +108,49 @@ public class ApexNLPClassifier extends BaseOperator
   public void setup(Context.OperatorContext context)
   {
 
-    correct = 0;
-    incorrect = 0;
     accuracy = 0.0;
-    Classifier<String, String> cl = null;
+    cl = null;
+
     readModelFromHdfs(modelFilePath);
+    labels = (ArrayList<String>) cl.labels();
+    confusionMatrix = new int[cl.labels().size()][cl.labels().size()];
+    precision = new double[cl.labels().size()];
+    recall = new double[cl.labels().size()];
     Properties props = PropertiesUtils.fromString(classifierProperties);
     cdc = new ColumnDataClassifier(props);
     super.setup(context);
+
+  }
+
+  @Override
+  public void beginWindow(long windowId)
+  {
+    super.beginWindow(windowId);
+
+    precisions.clear();
+    for(int i = 0; i < confusionMatrix.length;i++){
+      Collection<Pair<String, Object>> row = new ArrayList<>();
+      row.add(new Pair<String, Object>("Label",labels.get(i)));
+      row.add(new Pair<String, Object>("Precision",new Double(precision[i])));
+      row.add(new Pair<String, Object>("Recall",new Double(recall[i])));
+      double f1 = 2*(precision[i]*recall[i])/(precision[i]+recall[i]);
+      row.add(new Pair<String, Object>("F1 Score",new Double(f1)));
+      row.add(new Pair<String, Object>("TP",new Double(confusionMatrix[i][i])));
+      int sum=0;
+      for (int j = 0; j<confusionMatrix.length;j++){
+        sum+=confusionMatrix[j][i];
+      }
+      row.add(new Pair<String, Object>("Predicted",new Double(sum)));
+
+      int sum1=0;
+      for (int j = 0; j<confusionMatrix.length;j++){
+        sum1+=confusionMatrix[i][j];
+      }
+
+      row.add(new Pair<String, Object>("Total Count",new Double(sum1)));
+
+      precisions.add(row);
+    }
 
   }
 
@@ -170,23 +216,65 @@ public class ApexNLPClassifier extends BaseOperator
     this.accuracy = accuracy;
   }
 
-  public int getCorrect()
-  {
-    return correct;
+  public void printConfusionMatrix(){
+    for (int i=0;i<confusionMatrix.length;i++){
+      for (int j =0;j<confusionMatrix.length;j++){
+        System.out.print(confusionMatrix[i][j]+" ");
+      }
+      System.out.println("\n");
+    }
   }
 
-  public void setCorrect(int correct)
-  {
-    this.correct = correct;
+  public void calculateAccuracy(){
+
+    int num=0;
+    int denum=0;
+    for (int i=0;i<confusionMatrix.length;i++){
+      for (int j =0;j<confusionMatrix.length;j++){
+        if(i==j){
+          num+=confusionMatrix[i][j];
+        }
+        denum+=confusionMatrix[i][j];
+      }
+    }
+    this.accuracy = (double)num/denum;
+    System.out.println("Accuracy " + accuracy);
   }
 
-  public int getIncorrect()
-  {
-    return incorrect;
+  public void calculatePrecision(){
+
+//    precision = new double[confusionMatrix.length];
+    for (int i=0 ; i < confusionMatrix.length; i++){
+      precision[i] = confusionMatrix[i][i];
+      int sum = 0;
+      for (int j=0 ; j < confusionMatrix.length; j++){
+        System.out.print("+ "+ confusionMatrix[j][i]);
+        sum+=confusionMatrix[j][i];
+      }
+      System.out.println("\n");
+      precision[i]/=sum;
+    }
+
+//    for (Object o: precisions){
+//      for (Object a : (ArrayList) o){
+//        System.out.println(a.toString() + " ");
+//      }
+//      System.out.println("\n");
+//    }
+
   }
 
-  public void setIncorrect(int incorrect)
-  {
-    this.incorrect = incorrect;
+  public void calculateRecall(){
+//    recall = new double[confusionMatrix.length];
+    for (int i=0 ; i < confusionMatrix.length; i++){
+      recall[i] = confusionMatrix[i][i];
+      int sum = 0;
+      for (int j=0 ; j < confusionMatrix.length; j++){
+        System.out.print("+ "+ confusionMatrix[j][i]);
+        sum+=confusionMatrix[i][j];
+      }
+      System.out.println("\n");
+      recall[i]/=sum;
+    }
   }
 }
