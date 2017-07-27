@@ -34,5 +34,11 @@
   </property>
 
 
+  <property>
+    <name>apex.application.EmailSpam.operator.Classifier.prop.testing</name>
+    <value>true</value>
+  </property>
+
+
 </configuration>
 

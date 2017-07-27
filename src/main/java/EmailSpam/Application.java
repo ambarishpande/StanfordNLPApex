@@ -24,7 +24,7 @@ public class Application implements StreamingApplication
     ConsoleOutputOperator console = dag.addOperator("Console",new ConsoleOutputOperator());
 
 //    dag.addStream("emails",fileInputOp.output,classifier.input);
-    dag.addStream("emailsTest",fileInputOp.output,classifier.testInput);
+    dag.addStream("emailsTest",fileInputOp.output,classifier.input);
     dag.addStream("class",classifier.output,console.input);
     dag.setAttribute(Context.DAGContext.METRICS_TRANSPORT, null);
     dag.setAttribute(classifier, Context.OperatorContext.METRICS_AGGREGATOR, new ClassifierMetricsAggregator());

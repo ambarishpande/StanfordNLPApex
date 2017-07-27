@@ -23,6 +23,7 @@ public class ClassifierMetricsAggregator implements AutoMetric.Aggregator, Seria
 
 
     Collection<Collection<Pair<String, Object>>> ret = new ArrayList<>();
+    Collection<Collection<Pair<String, Object>>> ret1 = new ArrayList<>();
 
 
     double accuracy = 0.0;
@@ -32,9 +33,13 @@ public class ClassifierMetricsAggregator implements AutoMetric.Aggregator, Seria
         String key = metrics.getKey();
         Object value = metrics.getValue();
         switch (key) {
-          case "precisions":
+          case "modelPerformance":
             Collection<Collection<Pair<String, Object>>> temp  = (Collection<Collection<Pair<String, Object>>>)value;
             ret.addAll(temp);
+            break;
+          case "confusionMatrixVisual":
+            Collection<Collection<Pair<String, Object>>> temp1  = (Collection<Collection<Pair<String, Object>>>)value;
+            ret1.addAll(temp1);
             break;
           case "accuracy":
             accuracy = (double)value;
@@ -44,7 +49,10 @@ public class ClassifierMetricsAggregator implements AutoMetric.Aggregator, Seria
     }
 
     if (ret.size() > 0) {
-      result.put("precisions", ret);
+      result.put("modelPerformance", ret);
+    }
+    if (ret1.size() > 0) {
+      result.put("confusionMatrixVisual", ret1);
     }
 
     result.put("accuracy",accuracy);

@@ -29,23 +29,25 @@ public class ApexNLPClassifierTest
       "goldAnswerColumn = 0");
     op.output.setSink(sink);
     op.setup(null);
+    op.setTesting(true);
     op.beginWindow(0);
-    // Testing Test Input
+    // testing == true
     FileInputStream fis = new FileInputStream(new File("/code/Development/StanfordNLPApex/src/main/resources/data/email.test"));
     BufferedReader br = new BufferedReader(new InputStreamReader(fis));
     while (br.ready()){
       String x = br.readLine();
       System.out.println("Length : " + x.length());
-      op.testInput.process(x);
+      op.input.process(x);
       System.out.println(sink.tuple);
     }
     System.out.println("Accuracy : " + op.getAccuracy());
     br.close();
     fis.close();
 
-    //Testing input
-//    op.input.process("llt v . 2 , n . 1  happy announce vol . 2 , . 1 language learn  technology available http polyglot . cal .\n msu . edu  llt . special issue \" design evaluation multimedium software , \" contents list below . please visit llt web site sure enter free subscription already . , welcome submission article , review , commentary vol . 2 , . 2 future issue . check our guideline submission http polyglot . cal . msu . edu  llt  contrib . html . lucinda hart  gonzalez  mark warschauer , editor llteditor  hawaius . edu feature article 1 . carol . chapelle , \" multimedium call  lesson learn research instruct sla \" 2 . jan l . plass , \" design evaluation user interface foreign language multimedium software  cognitive approach \" 3 . farzad ehsanus  eva knodt , \" speech technology computer  aide language learn  strength limitation call paradigm \" 4 . dorothy m . chun , \" signal analysis software teach discourse intonation \" column  editor lucinda hart  gonzalez , co  editor  guest editor irene thompson net using www multimedium foreign language classroom  is ? jean w . leloup robert ponterio emerge technology development digital video bob godwin  jone announcement sponsor organization review computer assist language learn  context conceptualization review christine leahy tripleplay plus  english review alison mackey jung  yoon chous call paper theme  role computer technology second language acquisition research");
-//    System.out.println(sink.tuple);
+    // testing == false
+    op.setTesting(false);
+    op.input.process("llt v . 2 , n . 1  happy announce vol . 2 , . 1 language learn  technology available http polyglot . cal .\n msu . edu  llt . special issue \" design evaluation multimedium software , \" contents list below . please visit llt web site sure enter free subscription already . , welcome submission article , review , commentary vol . 2 , . 2 future issue . check our guideline submission http polyglot . cal . msu . edu  llt  contrib . html . lucinda hart  gonzalez  mark warschauer , editor llteditor  hawaius . edu feature article 1 . carol . chapelle , \" multimedium call  lesson learn research instruct sla \" 2 . jan l . plass , \" design evaluation user interface foreign language multimedium software  cognitive approach \" 3 . farzad ehsanus  eva knodt , \" speech technology computer  aide language learn  strength limitation call paradigm \" 4 . dorothy m . chun , \" signal analysis software teach discourse intonation \" column  editor lucinda hart  gonzalez , co  editor  guest editor irene thompson net using www multimedium foreign language classroom  is ? jean w . leloup robert ponterio emerge technology development digital video bob godwin  jone announcement sponsor organization review computer assist language learn  context conceptualization review christine leahy tripleplay plus  english review alison mackey jung  yoon chous call paper theme  role computer technology second language acquisition research");
+    System.out.println(sink.tuple);
 
     op.endWindow();
     op.teardown();
