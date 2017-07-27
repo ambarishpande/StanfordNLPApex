@@ -101,12 +101,19 @@ e.g.
   </property>
 ```
 
-#### For Testing Accuracy of Trained model.
- Connect the test data input to testInput port of ApexNLPClassifier to test the accuracy of the trained model.
-#### For new data scoring.
-  Connect the data input tp input port of ApexNLPClassifier to score real time new inputl.
+#### For Testing Performance of Trained model.
+  1) Set testing property to true in properties.xml ( Default testing = false )
+  ```
+  <property>
+    <name>apex.application.EmailSpam.operator.Classifier.prop.testing</name>
+    <value>true</value>
+  </property>
+  ```
+  2) Import the provided dashboard in Datatorrent Console to view Model performance Parameters.
+ 
+ 
   
-##  Twitter Spam Example
+##  Email Spam Example
 
 An Apex application to demo the usage of ApexNLPClassifier Operator.
 
